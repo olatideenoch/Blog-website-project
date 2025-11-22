@@ -1,6 +1,7 @@
 from datetime import date
 import datetime as dt
-from flask import Flask, abort, render_template, redirect, url_for, flash
+from flask import Flask, abort, render_template, redirect, url_for, flash, request
+import smtplib
 from flask_bootstrap import Bootstrap5
 from flask_ckeditor import CKEditor
 from flask_gravatar import Gravatar
@@ -12,10 +13,11 @@ from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 # Import forms from the forms.py
 from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
+import os
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', '8BYkEfBA6O6donzWlSihBXox7C0sKR6b')
 app.config['CKEDITOR_PKG_TYPE'] = 'basic'
 ckeditor = CKEditor(app)
 Bootstrap5(app)
@@ -34,7 +36,7 @@ def load_user(user_id):
 # CREATE DATABASE
 class Base(DeclarativeBase):
     pass
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog-posts.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///blog-posts.db')
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
@@ -237,10 +239,27 @@ def about():
     return render_template("about.html", logged_in=current_user.is_authenticated)
 
 
-@app.route("/contact")
+@app.route("/contact", methods=["GET", "POST"])
 def contact():
-    return render_template("contact.html", logged_in=current_user.is_authenticated)
+    if request.method == "POST":
+        name = request.form["name"]
+        phone = request.form["phone"]
+        message = request.form["message"]
+        email = request.form["email"]
+        print()
+        with smtplib.SMTP(os.environ.get('SMTP_SERVER', "smtp.gmail.com"), int(os.environ.get('SMTP_PORT', 587))) as connection:
+            connection.starttls()
+            connection.login(user=os.environ.get('EMAIL', "olatideenoch1440@gmail.com"), password=os.environ.get('PASSWORD', "iwxvhkgkgxkzldpz"))
+            connection.sendmail(
+                from_addr= os.environ.get('EMAIL', "olatideenoch1440@gmail.com"),
+                to_addrs= os.environ.get('ADMIN_EMAIL', "oluwadasimienoch1440@gmail.com"),
+                msg= (f"Subject: New Message!\n\n"
+                    f"Name: {name}\n Phone: {phone}\n Message: {message}\n Email: {email}"
+                      ).encode("utf-8")
+            )
+        return render_template("contact.html", msg_sent=True)
+    return render_template("contact.html", logged_in=current_user.is_authenticated, msg_sent=False)
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5002)
+    app.run(debug=False, port=5002)

@@ -17,7 +17,7 @@ import os
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', '8BYkEfBA6O6donzWlSihBXox7C0sKR6b')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 app.config['CKEDITOR_PKG_TYPE'] = 'basic'
 ckeditor = CKEditor(app)
 Bootstrap5(app)
@@ -247,12 +247,12 @@ def contact():
         message = request.form["message"]
         email = request.form["email"]
         print()
-        with smtplib.SMTP(os.environ.get('SMTP_SERVER', "smtp.gmail.com"), int(os.environ.get('SMTP_PORT', 587))) as connection:
+        with smtplib.SMTP(os.environ.get('SMTP_SERVER'), int(os.environ.get('SMTP_PORT')) as connection:
             connection.starttls()
-            connection.login(user=os.environ.get('EMAIL', "olatideenoch1440@gmail.com"), password=os.environ.get('PASSWORD', "iwxvhkgkgxkzldpz"))
+            connection.login(user=os.environ.get('EMAIL'), password=os.environ.get('PASSWORD')
             connection.sendmail(
-                from_addr= os.environ.get('EMAIL', "olatideenoch1440@gmail.com"),
-                to_addrs= os.environ.get('ADMIN_EMAIL', "oluwadasimienoch1440@gmail.com"),
+                from_addr= os.environ.get('EMAIL'),
+                to_addrs= os.environ.get('ADMIN_EMAIL'),
                 msg= (f"Subject: New Message!\n\n"
                     f"Name: {name}\n Phone: {phone}\n Message: {message}\n Email: {email}"
                       ).encode("utf-8")

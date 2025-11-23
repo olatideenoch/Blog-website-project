@@ -247,9 +247,9 @@ def contact():
         message = request.form["message"]
         email = request.form["email"]
         print()
-        with smtplib.SMTP(os.environ.get('SMTP_SERVER'), int(os.environ.get('SMTP_PORT')) as connection:
+        with smtplib.SMTP(os.environ.get('SMTP_SERVER'), int(os.environ.get('SMTP_PORT'))) as connection:
             connection.starttls()
-            connection.login(user=os.environ.get('EMAIL'), password=os.environ.get('PASSWORD')
+            connection.login(user=os.environ.get('EMAIL'), password=os.environ.get('PASSWORD'))
             connection.sendmail(
                 from_addr= os.environ.get('EMAIL'),
                 to_addrs= os.environ.get('ADMIN_EMAIL'),

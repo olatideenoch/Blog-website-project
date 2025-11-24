@@ -32,6 +32,8 @@ gravatar = Gravatar(
     base_url=None
 )
 
+from models import User, BlogPost, Comment
+
 def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
@@ -47,7 +49,6 @@ def create_app():
     gravatar.init_app(app)
 
     with app.app_context():
-        from models import User, BlogPost, Comment
         db.create_all()
 
     # TODO: Configure Flask-Login

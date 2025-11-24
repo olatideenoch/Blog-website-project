@@ -1,7 +1,7 @@
 from flask_login import UserMixin
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy import Integer, String, Text, ForeignKey
-from .main import db  # Import db from main after it's created
+from main import db
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"

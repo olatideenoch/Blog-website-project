@@ -8,16 +8,12 @@ from flask_bootstrap import Bootstrap5
 from flask_ckeditor import CKEditor
 from flask_gravatar import Gravatar
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase
 from functools import wraps
 
+from database import db 
+from models import User, BlogPost, Comment  
 from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
 
-class Base(DeclarativeBase):
-    pass
-
-db = SQLAlchemy(model_class=Base)
 login_manager = LoginManager()
 ckeditor = CKEditor()
 bootstrap = Bootstrap5()
@@ -47,13 +43,11 @@ def create_app():
     gravatar.init_app(app)
 
     with app.app_context():
-        from models import User, BlogPost, Comment
         db.create_all()
 
     # TODO: Configure Flask-Login
     @login_manager.user_loader
     def load_user(user_id):
-        from models import User
         try:
             return db.session.execute(db.select(User).where(User.id == int(user_id))).scalar()
         except:
@@ -78,7 +72,6 @@ def create_app():
     # TODO: Use Werkzeug to hash the user's password when creating a new user.
     @app.route('/register', methods=["GET", "POST"])
     def register():
-        from models import User
         form = RegisterForm()
         if form.validate_on_submit():
             from werkzeug.security import generate_password_hash
@@ -100,7 +93,6 @@ def create_app():
     # TODO: Retrieve a user from the database based on their email.
     @app.route('/login', methods=["GET", "POST"])
     def login():
-        from models import User
         form = LoginForm()
         if form.validate_on_submit():
             from werkzeug.security import check_password_hash
@@ -125,7 +117,6 @@ def create_app():
 
     @app.route('/')
     def get_all_posts():
-        from models import BlogPost
         result = db.session.execute(db.select(BlogPost))
         posts = result.scalars().all()
         return render_template("index.html", all_posts=posts, logged_in=current_user.is_authenticated)
@@ -133,7 +124,6 @@ def create_app():
     # TODO: Allow logged-in users to comment on posts
     @app.route("/post/<int:post_id>", methods=["GET", "POST"])
     def show_post(post_id):
-        from models import BlogPost, Comment
         form = CommentForm()
         requested_post = db.get_or_404(BlogPost, post_id)
         if form.validate_on_submit():
@@ -154,7 +144,6 @@ def create_app():
     @app.route("/new-post", methods=["GET", "POST"])
     @admin_only
     def add_new_post():
-        from models import BlogPost
         form = CreatePostForm()
         if form.validate_on_submit():
             new_post = BlogPost(
@@ -174,7 +163,6 @@ def create_app():
     @app.route("/edit-post/<int:post_id>", methods=["GET", "POST"])
     @admin_only
     def edit_post(post_id):
-        from models import BlogPost
         post = db.get_or_404(BlogPost, post_id)
         edit_form = CreatePostForm(
             title=post.title,
@@ -197,7 +185,6 @@ def create_app():
     @app.route("/delete/<int:post_id>")
     @admin_only
     def delete_post(post_id):
-        from models import BlogPost
         post_to_delete = db.get_or_404(BlogPost, post_id)
         db.session.delete(post_to_delete)
         db.session.commit()

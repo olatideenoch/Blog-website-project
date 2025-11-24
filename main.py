@@ -1,4 +1,3 @@
-# main.py
 from datetime import date
 import datetime as dt
 from flask import Flask, abort, render_template, redirect, url_for, flash, request
@@ -13,7 +12,6 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from functools import wraps
 
-# Import forms from the forms.py
 from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
 
 class Base(DeclarativeBase):
@@ -41,7 +39,6 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['CKEDITOR_PKG_TYPE'] = 'basic'
 
-    # Initialize all extensions with the app
     db.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'login'
@@ -49,11 +46,8 @@ def create_app():
     bootstrap.init_app(app)
     gravatar.init_app(app)
 
-    # Import models only after db exists (prevents circular import & double mapper error)
-    from models import User, BlogPost, Comment
-
-    # Create tables if they don't exist
     with app.app_context():
+        from models import User, BlogPost, Comment
         db.create_all()
 
     # TODO: Configure Flask-Login
@@ -227,8 +221,6 @@ def create_app():
 
     return app
 
-
-# For local development only (safe to keep — ignored on Render)
 if __name__ == "__main__":
     app = create_app()
     app.run(debug=True, port=5002)

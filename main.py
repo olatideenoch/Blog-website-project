@@ -10,7 +10,7 @@ from flask_gravatar import Gravatar
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
 from functools import wraps
 
-from database import db 
+from database import db
 from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
 
 login_manager = LoginManager()
@@ -27,7 +27,11 @@ gravatar = Gravatar(
     base_url=None
 )
 
+_models_imported = False
+
 def create_app():
+    global _models_imported
+    
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
@@ -42,10 +46,10 @@ def create_app():
     gravatar.init_app(app)
 
     with app.app_context():
-        from models import User, BlogPost, Comment
+        if not _models_imported:
+            from models import User, BlogPost, Comment
+            _models_imported = True
         db.create_all()
-        
-        app.config['MODELS_IMPORTED'] = True
 
     # TODO: Configure Flask-Login
     @login_manager.user_loader

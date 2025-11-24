@@ -9,10 +9,8 @@ class User(UserMixin, db.Model):
     name: Mapped[str] = mapped_column(String(1000), nullable=False)
     email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String(100), nullable=False)
-
     posts = relationship("BlogPost", back_populates="author")
     comments = relationship("Comment", back_populates="comment_author")
-
 
 class BlogPost(db.Model):
     __tablename__ = "blog_posts"
@@ -24,9 +22,7 @@ class BlogPost(db.Model):
     date: Mapped[str] = mapped_column(String(250), nullable=False)
     body: Mapped[str] = mapped_column(Text, nullable=False)
     img_url: Mapped[str] = mapped_column(String(250), nullable=False)
-
     comments = relationship("Comment", back_populates="parent_post")
-
 
 class Comment(db.Model):
     __tablename__ = "comments"
